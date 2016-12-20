@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.newer.dao.PfavoriteMapper">
+  <resultMap type="com.newer.pojo.Pfavorite" id="pf-result">
+    <id property="rid" column="RID"/>
+     <!-- many to one -->
+    <association property="companyjob" column="CID"
+    javaType="com.newer.pojo.Companyjob" resultMap="companyjob-result" />
+	<association property="person" column="PID"
+    javaType="com.newer.pojo.Person" resultMap="person-result" />
+ </resultMap>
+ 
+
+ <resultMap type="com.newer.pojo.Companyjob" id="companyjob-result">
+ <id property="cid" column="CID"/>
+ <result property="cnamejob" column="CNAMEJOB"/>
+ <result property="pwd" column="PWD"/>
+ <result property="cname" column="CNAME"/>
+ <result property="trade" column="TRADE"/>
+ <result property="ctype" column="CTYPE"/>
+ <result property="fund" column="FUND"/>
+ <result property="cdate" column="CDATE"/>
+ <result property="address" column="ADDRESS"/>
+ <result property="zip" column="ZIP"/>
+ <result property="namec" column="NAMEC"/>
+ <result property="phone" column="PHONE"/>
+ <result property="email" column="EMAIL"/>
+ <result property="chttp" column="CHTTP"/>
+ <result property="summary" column="SUMMARY"/>
+ <result property="clicks" column="CLICKS"/>
+ </resultMap>
+ 
+ 
+ 
+ <resultMap type="com.newer.pojo.Person" id="person-result">
+ <id property="pid" column="PID"/>
+ <result property="pnamejper" column="PNAMEJPER"/>
+ <result property="pwd" column="PWD"/>
+ <result property="pname" column="PNAME"/>
+ <result property="code" column="CODE"/>
+ <result property="mzhu" column="MZHU"/>
+ <result property="marry" column="MARRY"/>
+ <result property="politics" column="POLITICS"/>
+ <result property="zchen" column="ZCHEN"/>
+ <result property="birthday" column="BIRTHDAY"/>
+ <result property="edu" column="EDU"/>
+ <result property="school" column="SCHOOL"/>
+ <result property="major" column="MAJOR"/>
+ <result property="language" column="LANGUAGE"/>
+ <result property="lanlevel" column="LANLEVEL"/>
+ <result property="mandarin" column="MANDARIN"/>
+ <result property="computer" column="COMPUTER"/>
+ <result property="workyears" column="WORKYEARS"/>
+ <result property="experience" column="EXPERIENCE"/>
+ <result property="qjob" column="QJOB"/>
+ <result property="location" column="LOCATION"/>
+ <result property="salary" column="SALARY"/>
+ <result property="special" column="SPECIAL"/>
+ <result property="pphone" column="PPHONE"/>
+ <result property="emailp" column="EMAILP"/>
+ <result property="paddreess" column="PADDREESS"/>
+ <result property="pclick" column="PCLICK"/>
+ <result property="pdate" column="PDATE"/> 
+ </resultMap>
+
+<sql id="pageSQLHead">
+select RID,CID,PID from(
+select row_number() over(
+</sql>
+<sql id="orderBy">
+<if test="sort != null and order !=null">
+order by
+<choose>
+<when test="sort=='rid'">RID</when>
+<when test="sort=='cid'">CID</when>
+<when test="sort=='pid'">PID</when>
+</choose>
+<if test="order=='asc'">ASC</if>
+<if test="order=='desc'">DESC</if>
+</if>
+</sql>
+
+<sql id="pageSQLFoot">
+<![CDATA[) where rn >#{pageno} and rn <=#{pagesize}]]>
+</sql>
+
+  <select id="findPfavorite" resultMap="pf-result">
+  <include refid="pageSQLHead" />
+  <include refid="orderBy" />
+   )rn,c.* from PFAVORITE c
+  <include refid="pageSQLFoot" />
+  </select>
+ 
+ <select id="findTotalPf" resultType="int">
+ select count(rid) from PFAVORITE
+ </select>
+
+
+<select id="findPfavoriteId" resultType="int" resultMap="pf-result">
+select RID,c.CNAME,c.CID,p.PNAME,p.PID from PFAVORITE f,COMPANYJOB c,PERSON p
+ where f.cid=c.cid and f.pid=p.pid and RID=#{id}
+</select>
+</mapper>

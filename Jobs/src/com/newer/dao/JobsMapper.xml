@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.newer.dao.JobsMapper">
+ <resultMap type="com.newer.pojo.Jobs" id="Jobs-result">   
+	<id property="jid" column="JID"/>		
+	<result property="jname" column="JNAME"/>
+	<result property="jdate" column="JDATE"/>
+	<result property="num" column="NUM"/>
+	<result property="location" column="LOCATION"/>
+	<result property="description" column="DESCRIPTION"/>
+	<result property="requirement" column="REQUIREMENT"/>
+	<result property="sal" column="SAL"/>
+   	<!-- many to one -->
+    <association property="companyjob" column="CID"
+    javaType="com.newer.pojo.Companyjob" resultMap="companyjob-result" />
+ </resultMap>
+
+
+
+<resultMap type="com.newer.pojo.Companyjob" id="companyjob-result">
+ <id property="cid" column="CID"/>
+ <result property="cnamejob" column="CNAMEJOB"/>
+ <result property="pwd" column="PWD"/>
+ <result property="cname" column="CNAME"/>
+ <result property="trade" column="TRADE"/>
+ <result property="ctype" column="CTYPE"/>
+ <result property="fund" column="FUND"/>
+ <result property="cdate" column="CDATE"/>
+ <result property="address" column="ADDRESS"/>
+ <result property="zip" column="ZIP"/>
+ <result property="namec" column="NAMEC"/>
+ <result property="phone" column="PHONE"/>
+ <result property="email" column="EMAIL"/>
+ <result property="chttp" column="CHTTP"/>
+ <result property="summary" column="SUMMARY"/>
+ <result property="clicks" column="CLICKS"/>
+ </resultMap>
+ 
+ 
+<sql id="pageSQLHead">
+select  JID,JNAME,JDATE,NUM,LOCATION,DESCRIPTION,REQUIREMENT,SAL,
+CNAMEJOB,PWD,CNAME,TRADE,CTYPE,FUND,CDATE,ADDRESS,ZIP,NAMEC,PHONE,EMAIL,CHTTP,SUMMARY,CLICKS from(
+select row_number() over(
+</sql>
+<sql id="orderBy">
+<if test="sort != null and order !=null">
+order by
+<choose>
+<when test="sort=='jid'">JID</when>
+<when test="sort=='jname'">JNAME</when>
+<when test="sort=='jdate'">JDATE</when>
+<when test="sort=='location'">LOCATION</when>
+</choose>
+<if test="order=='asc'">ASC</if>
+<if test="order=='desc'">DESC</if>
+</if>
+</sql>
+<sql id="whereCase">
+<where>
+ 1=1 and j.cid = c.cid
+<if test="name !=null and name!=''">
+and JNAME like #{name}
+</if>
+<if test="beginDate !=null and endDate!=null">
+and JDATE between #{beginDate} and #{beginDate}
+</if>
+</where>
+</sql>
+<sql id="pageSQLFoot">
+<![CDATA[) where rn >#{pageno} and rn <=#{pagesize}  ]]>
+</sql>
+
+  <select id="findJobs" resultMap="Jobs-result">
+  <include refid="pageSQLHead" />
+  <include refid="orderBy" />
+  )rn,j.*,c.* from JOBS j ,COMPANYJOB c
+  <include refid="whereCase" />
+  <include refid="pageSQLFoot" />
+  </select>
+ 
+ <select id="TotalJobs" resultType="int">
+ select count(jid) from JOBS j,COMPANYJOB c
+ <include refid="whereCase"></include>
+ </select>
+ 
+ <select id="findById" resultType="int"  resultMap="Jobs-result">
+ select JID,JNAME,JDATE,NUM,LOCATION,DESCRIPTION,REQUIREMENT,j.CID,SAL,C.CNAME
+ from JOBS j,COMPANYJOB c
+  where j.cid=c.cid and JID=#{jid}
+ </select>
+</mapper>

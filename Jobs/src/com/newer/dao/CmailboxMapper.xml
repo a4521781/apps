@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.newer.dao.CmailboxMapper">
+     
+
+  <!-- *** start 分页 ***************************** -->
+  <resultMap type="com.newer.pojo.Cmailbox" id="cmailbox-result">
+    <id property="mid" column="MID" />
+    <result property="sendname" column="SENDNAME"/>
+    <result property="title" column="TITLE"/>
+    <result property="mailtext" column="MAILTEXT"/>
+    <result property="sdate" column="SDATE"/>
+    <result property="newmail" column="NEWMAIL"/>
+     <association property="companyjob" column="CID" 
+    javaType="com.newer.pojo.Companyjob"  resultMap="companyjob-result"/>
+     <association property="person" column="PID" 
+    javaType="com.newer.pojo.Person"  resultMap="person-result"/>
+  </resultMap>
+  
+  
+  
+<resultMap type="com.newer.pojo.Person" id="person-result">
+ <id property="pid" column="PID"/>
+ <result property="pnamejper" column="PNAMEJPER"/>
+ <result property="pwd" column="PWD"/>
+ <result property="pname" column="PNAME"/>
+ <result property="code" column="CODE"/>
+ <result property="mzhu" column="MZHU"/>
+ <result property="marry" column="MARRY"/>
+ <result property="politics" column="POLITICS"/>
+ <result property="zchen" column="ZCHEN"/>
+ <result property="birthday" column="BIRTHDAY"/>
+ <result property="edu" column="EDU"/>
+ <result property="school" column="SCHOOL"/>
+ <result property="major" column="MAJOR"/>
+ <result property="language" column="LANGUAGE"/>
+ <result property="lanlevel" column="LANLEVEL"/>
+ <result property="mandarin" column="MANDARIN"/>
+ <result property="computer" column="COMPUTER"/>
+ <result property="workyears" column="WORKYEARS"/>
+ <result property="experience" column="EXPERIENCE"/>
+ <result property="qjob" column="QJOB"/>
+ <result property="location" column="LOCATION"/>
+ <result property="salary" column="SALARY"/>
+ <result property="special" column="SPECIAL"/>
+ <result property="pphone" column="PPHONE"/>
+ <result property="emailp" column="EMAILP"/>
+ <result property="paddreess" column="PADDREESS"/>
+ <result property="pclick" column="PCLICK"/>
+ <result property="pdate" column="PDATE"/> 
+ 
+ </resultMap>
+  
+  
+   <resultMap type="com.newer.pojo.Companyjob" id="companyjob-result">
+ <id property="cid" column="CID"/>
+ <result property="cnamejob" column="CNAMEJOB"/>
+ <result property="pwd" column="PWD"/>
+ <result property="cname" column="CNAME"/>
+ <result property="trade" column="TRADE"/>
+ <result property="ctype" column="CTYPE"/>
+ <result property="fund" column="FUND"/>
+ <result property="cdate" column="CDATE"/>
+ <result property="address" column="ADDRESS"/>
+ <result property="zip" column="ZIP"/>
+ <result property="namec" column="NAMEC"/>
+ <result property="phone" column="PHONE"/>
+ <result property="email" column="EMAIL"/>
+ <result property="chttp" column="CHTTP"/>
+ <result property="summary" column="SUMMARY"/>
+ <result property="clicks" column="CLICKS"/>
+ 
+ </resultMap>
+ 
+  <sql id="pageSQLHead">
+    select  MID,CID,PID,SENDNAME,TITLE,MAILTEXT,SDATE,NEWMAIL from (
+      select row_number() over(
+  </sql>
+  
+  <sql id="orderBy">
+    <if test="sort != null and order != null">
+      order by
+      <choose>
+        <when test="sort=='sendname'">SENDNAME</when>
+        <when test="sort=='mid'">MID</when>
+        <when test="sort=='sdate'">SDATE</when>
+        <otherwise>MID</otherwise>
+      </choose>
+      <if test="order=='asc'">ASC</if>
+      <if test="order=='desc'">DESC</if>
+    </if>
+  </sql>
+  
+  <sql id="whereCase">
+    <where>
+      1=1
+      <if test="sendname != null and sendname != ''">
+        and SENDNAME like #{sendname}
+      </if>
+      <if test="beginDate != null and endDate != null">
+        and SDATE between #{beginDate} and #{endDate}
+      </if>
+    </where>
+  </sql>
+  
+  <sql id="pageSQLFoot">
+    <![CDATA[ ) where rn > #{pageno} and rn <= #{pagesize} ]]>
+  </sql>
+  
+  <select id="findPager" resultMap="cmailbox-result">
+    <include refid="pageSQLHead" />
+    <include refid="orderBy" />
+    ) rn,c.* from CMAILBOX c
+    <include refid="whereCase" />
+    <include refid="pageSQLFoot" />
+  </select>
+  
+  <select id="findTotal" resultType="int">
+    select count(MID) from CMAILBOX
+    <include refid="whereCase" />
+  </select>
+  
+  <!-- *** end 分页 ***************************** -->
+
+</mapper>  
