@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mybatis.dao.DeptMapper">
+ <!-- 
+  select 节点表示查询语句
+  id 属性表示查询语句的唯一id
+  parameterType 属性表示传入参数的类型(一个参数/多个参数使用对象或Map封装)
+  resultType 属性表示结果集返回的数据类型(类的别名或包名+类名)
+  sql 语句的关键字/字段名/表名不区分大小写
+  #{}中的参数名是类的属性名,区分大小写
+   -->
+	<select id="findById" parameterType="int" resultType="Dept">
+	select DEPTNO,DNAME,LOC FROM DEPT
+	where DEPTNO=#{deptno}
+	</select>
+	
+	
+	<insert id="addDept" parameterType="Dept">
+	 insert into DEPT(DEPTNO,DNAME,LOC)
+	 values(#{deptno},#{dname},#{loc})
+	</insert>
+	
+	<update id="modifyDept" parameterType="Dept">
+	update DEPT set DNAME=#{dname},LOC=#{loc}
+	where DEPTNO=#{deptno}
+	</update>
+	
+	<delete id="removeDept" parameterType="int">
+    delete from DEPT where DEPTNO=#{deptno}
+  </delete>
+	
+	<!-- 表中的字段与类中的属性映射 -->
+	<resultMap type="Dept" id="dept-result">
+	<id property="deptno" column="DEPTNO"/>
+	<id property="dname" column="DNAME"/>
+	<id property="loc" column="LOC"/>
+	</resultMap>
+	
+	<select id="findAllDept" resultMap="dept-result">
+	select DEPTNO,DNAME,LOC FROM DEPT
+	</select>
+	
+	
+	
+	<select id="findParamDept" parameterType="java.util.Map" resultMap="dept-result">
+	select DEPTNO,DNAME,LOC FROM DEPT
+	<where>
+	1=1
+	<if test="dname != null and dname!=''">
+	and DNAME like #{dname}
+	</if>
+	
+	<if test="loc != null and loc!=''">
+	and LOC like #{loc}
+	</if>
+	
+	
+	</where>
+	</select>
+</mapper>
